@@ -4,15 +4,12 @@ import 'dart:ui' as ui;
 import 'dart:ui';
 
 import 'package:cached_network_image_platform_interface/cached_network_image_platform_interface.dart';
+import 'package:cached_network_image_platform_interface'
+    '/cached_network_image_platform_interface.dart' as platform show ImageLoader;
+import 'package:cached_network_image_platform_interface'
+    '/cached_network_image_platform_interface.dart' show ImageRenderMethodForWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-
-import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart' as platform
-    show ImageLoader;
-import 'package:cached_network_image_platform_interface'
-        '/cached_network_image_platform_interface.dart'
-    show ImageRenderMethodForWeb;
 
 /// ImageLoader class to load images on IO platforms.
 class ImageLoader implements platform.ImageLoader {
@@ -92,8 +89,7 @@ class ImageLoader implements platform.ImageLoader {
   ) async* {
     try {
       assert(
-          cacheManager is ImageCacheManager ||
-              (maxWidth == null && maxHeight == null),
+          cacheManager is ImageCacheManager || (maxWidth == null && maxHeight == null),
           'To resize the image with a CacheManager the '
           'CacheManager needs to be an ImageCacheManager. maxWidth and '
           'maxHeight will be ignored when a normal CacheManager is used.');
@@ -105,8 +101,7 @@ class ImageLoader implements platform.ImageLoader {
               withProgress: true,
               headers: headers,
               key: cacheKey)
-          : cacheManager.getFileStream(url,
-              withProgress: true, headers: headers, key: cacheKey);
+          : cacheManager.getFileStream(url, withProgress: true, headers: headers, key: cacheKey);
 
       await for (var result in stream) {
         if (result is DownloadProgress) {
@@ -131,7 +126,9 @@ class ImageLoader implements platform.ImageLoader {
       });
 
       errorListener?.call();
-      rethrow;
+      if (!e.toString().contains('statusCode: 400')) {
+        rethrow;
+      }
     } finally {
       await chunkEvents.close();
     }
